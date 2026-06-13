@@ -1,0 +1,108 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.editor__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #d0d0d0;
+  background: #f7f7f7;
+}
+
+.editor__toolbar button {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  border: 1px solid #c0c0c0;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.editor__toolbar button:hover {
+  background: #ededed;
+}
+
+.editor__file-input {
+  display: none;
+}
+
+.editor__sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.editor__mode {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  border: 1px solid #c0c0c0;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.editor__mode.is-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.editor__conn {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.editor__conn--connected {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.editor__conn--connecting {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.editor__conn--disconnected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.editor__filename {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.editor__status {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.editor__status.is-dirty {
+  color: #c2410c;
+}
+
+.editor__status.is-saved {
+  color: #15803d;
+}
+
+.editor__textarea {
+  flex: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  box-sizing: border-box;
+}

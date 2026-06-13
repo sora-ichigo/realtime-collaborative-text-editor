@@ -1,0 +1,22 @@
+import type * as Y from 'yjs'
+
+export type SyncMode = 'ws' | 'sse' | 'polling'
+
+export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected'
+
+export interface SyncTransport {
+  connect(): void | Promise<void>
+  disconnect(): void
+}
+
+export interface TransportDeps {
+  doc: Y.Doc
+  clientId: string
+  setStatus: (status: ConnectionStatus) => void
+}
+
+export const SYNC_MODE_LABELS: Record<SyncMode, string> = {
+  ws: 'WebSocket',
+  sse: 'SSE',
+  polling: 'Polling',
+}
