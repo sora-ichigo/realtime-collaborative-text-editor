@@ -1,29 +1,34 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { loadDraft, saveDraft, clearDraft } from './storage'
+import { loadDraft, saveDraft, clearDraft, draftKey } from './storage'
 
 describe('draft storage', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
+  it('builds a per-room draft key from owner and file', () => {
+    expect(draftKey('alice', 'notes.txt')).toBe('rcte:draft:alice/notes.txt')
+  })
+
   it('returns an empty string when no draft is saved', () => {
-    expect(loadDraft()).toBe('')
+    expect(loadDraft('rcte:draft:alice/a.txt')).toBe('')
   })
 
   it('saves a draft and loads it back', () => {
-    saveDraft('hello')
-    expect(loadDraft()).toBe('hello')
+    saveDraft('rcte:draft:alice/a.txt', 'hello')
+    expect(loadDraft('rcte:draft:alice/a.txt')).toBe('hello')
   })
 
-  it('overwrites a previously saved draft', () => {
-    saveDraft('first')
-    saveDraft('second')
-    expect(loadDraft()).toBe('second')
+  it('keeps drafts for different rooms separate', () => {
+    saveDraft(draftKey('alice', 'a.txt'), 'A')
+    saveDraft(draftKey('bob', 'a.txt'), 'B')
+    expect(loadDraft(draftKey('alice', 'a.txt'))).toBe('A')
+    expect(loadDraft(draftKey('bob', 'a.txt'))).toBe('B')
   })
 
-  it('clears the saved draft', () => {
-    saveDraft('hello')
-    clearDraft()
-    expect(loadDraft()).toBe('')
+  it('clears a saved draft', () => {
+    saveDraft('rcte:draft:alice/a.txt', 'hello')
+    clearDraft('rcte:draft:alice/a.txt')
+    expect(loadDraft('rcte:draft:alice/a.txt')).toBe('')
   })
 })

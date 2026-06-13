@@ -1,13 +1,15 @@
-const DRAFT_KEY = 'realtime-sync-editor:draft'
-
-export function loadDraft(): string {
-  return localStorage.getItem(DRAFT_KEY) ?? ''
+export function draftKey(owner: string, file: string): string {
+  return `rcte:draft:${owner}/${file}`
 }
 
-export function saveDraft(content: string): void {
-  localStorage.setItem(DRAFT_KEY, content)
+export function loadDraft(key: string): string {
+  return localStorage.getItem(key) ?? ''
 }
 
-export function clearDraft(): void {
-  localStorage.removeItem(DRAFT_KEY)
+export function saveDraft(key: string, content: string): void {
+  localStorage.setItem(key, content)
+}
+
+export function clearDraft(key: string): void {
+  localStorage.removeItem(key)
 }

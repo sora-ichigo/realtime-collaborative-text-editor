@@ -1,30 +1,36 @@
 # Realtime Collaborative Text Editor
 
-A web-based plain-text editor with real-time collaborative editing. Multiple
-clients edit one shared document and stay in sync through a backend server,
-using [Yjs](https://yjs.dev/) CRDTs so concurrent edits merge without losing
+A web-based plain-text editor with real-time collaborative editing. Documents
+live in per-user **filesystems** on a backend server and stay in sync using
+[Yjs](https://yjs.dev/) CRDTs, so concurrent edits merge without losing
 characters. The same client also runs as a macOS desktop app via Electron.
 
 ## Features
 
-- 📝 **Plain-text editing** — open, edit, and save `.txt` files
-- 💾 **Save back to the same file** — overwrites the opened file via the File
-  System Access API (with a download fallback for unsupported browsers)
-- 🔵 **Unsaved-changes indicator** — shows whether the document differs from the
-  last saved/opened state
-- 💿 **Auto-save draft** — every change is persisted to `localStorage`
-- 🔄 **Real-time sync** across clients, with three switchable transports:
-  **WebSocket**, **SSE**, and **HTTP polling**
+- 📝 **Plain-text editing** — edit text, import/export `.txt` files (the export
+  overwrites the opened file via the File System Access API)
+- 🗂️ **Per-user filesystems** — each browser gets a persistent `userId`; a
+  document is identified by `(owner, filename)`
+- 🙋 **Display names + picker** — set an editable name; pick any filesystem from
+  a dropdown of known users by name (no UUID typing)
+- 👥 **Open shared files** — editing the same `(owner, filename)` syncs in real
+  time; different files don't. Any user can open another user's filesystem.
+- 📦 **1 MB quota per filesystem** — the server rejects edits beyond the limit;
+  a usage bar shows how full each filesystem is
+- 🔵 **Unsaved-changes indicator** for local import/export
+- 🔄 **Real-time sync** with three switchable transports: **WebSocket**, **SSE**,
+  and **HTTP polling**
 - 🧩 **CRDT merging (Yjs)** — concurrent edits converge with no lost edits
+- 🗄️ **Server persistence** — every file is saved to disk and restored on restart
 - 🖥️ **macOS desktop app** (Electron)
 
 ## How sync works
 
-All clients connect to a single backend server that owns one authoritative
-`Y.Doc`. Each edit is encoded as a Yjs binary update, sent to the server,
-applied to the shared document, and relayed to every other client — regardless
-of which transport that client uses. A WebSocket client and a polling client
-therefore stay in sync with each other.
+The server keeps one authoritative `Y.Doc` **per `(owner, filename)` room**.
+Each edit is encoded as a Yjs binary update, sent to the server, applied to that
+room's document, and relayed to every other client in the same room — regardless
+of transport. So a WebSocket client and a polling client editing the same file
+stay in sync, while different files never mix.
 
 | Transport     | Down (server → client) | Up (client → server) | Latency        |
 | ------------- | ---------------------- | -------------------- | -------------- |
@@ -32,7 +38,8 @@ therefore stay in sync with each other.
 | **SSE**       | `GET /api/events`      | `POST /api/update`   | low            |
 | **Polling**   | `GET /api/state?sv=…`  | `POST /api/update`   | ~1s (interval) |
 
-You switch transports per client with the buttons in the toolbar.
+You switch transports per client with the buttons in the toolbar. Each request
+carries `owner` and `file` query params to select the room.
 
 ## Tech stack
 
@@ -63,9 +70,17 @@ Start the client and the sync server together:
 npm run dev
 ```
 
-Then open <http://localhost:5173/> in **two windows** and type in one — the text
-appears in the other in real time. The Vite dev server proxies `/api` and `/ws`
+Then open <http://localhost:5173/>. The Vite dev server proxies `/api` and `/ws`
 to the sync server on port `8787`.
+
+To see real-time sync, two clients must be in the **same room** (same `owner`
+and `file`):
+
+- **Two tabs/windows of the same browser** share a `userId`, so the same
+  filename syncs automatically — type in one, watch the other.
+- **Different browsers** get different `userId`s. To collaborate, pick the other
+  person from the **Filesystem** dropdown (they appear by name once they've
+  opened the app) and use the same filename.
 
 ## Desktop app (macOS)
 
@@ -112,21 +127,32 @@ npm run dev:server
 
 ```
 .
-├── server/                 # Hono sync server (single authoritative Y.Doc)
-│   ├── docHub.ts           # owns the doc, applies & fans out updates
-│   └── index.ts            # WebSocket / SSE / polling endpoints
+├── server/                 # Hono sync server
+│   ├── docHub.ts           # one Y.Doc: applies & fans out updates
+│   ├── docRegistry.ts      # one hub per (owner, file) + per-owner quota
+│   ├── docStore.ts         # per-file persistence on disk
+│   ├── persistence.ts      # debounced saver
+│   └── index.ts            # WebSocket / SSE / polling + /api/files endpoints
 ├── electron/               # Electron main + preload (desktop app)
 └── src/
     ├── sync/               # transports, encoding, server-url + types
-    ├── lib/                # text-file, storage, and Y.Text diff helpers
-    ├── hooks/useCollab.ts  # owns the Y.Doc and swaps transports
+    ├── lib/                # text-file, storage, userId, Y.Text diff helpers
+    ├── hooks/useCollab.ts  # owns the per-room Y.Doc, quota, and transports
     └── components/Editor.tsx
 ```
 
+## Configuration (server)
+
+| Env var       | Default          | Description                                   |
+| ------------- | ---------------- | --------------------------------------------- |
+| `PORT`        | `8787`           | Server port                                   |
+| `DATA_DIR`    | `server/data`    | Where documents are persisted (one file each) |
+| `QUOTA_BYTES` | `1048576` (1 MB) | Storage quota per filesystem (owner)          |
+
 ## Limitations
 
-- **Single shared document** — everyone edits the same text; there are no rooms.
-- **In-memory only** — the server does not persist the document, so restarting
-  it resets the shared text.
+- **No authentication** — a `userId` is just a random id in `localStorage`, and
+  anyone who knows an owner id can open that filesystem. There is no access
+  control; this is a learning project, not a secure multi-tenant service.
 - **Local server** — clients target `localhost:8787`; syncing across different
   machines requires hosting the server and updating the client URL.

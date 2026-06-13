@@ -1,4 +1,5 @@
-const DEFAULT_FILENAME = 'untitled.txt'
+export const DEFAULT_FILE = 'untitled.txt'
+const DEFAULT_FILENAME = DEFAULT_FILE
 
 export function ensureTxtExtension(name: string): string {
   const trimmed = name.trim()

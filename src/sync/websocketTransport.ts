@@ -1,10 +1,16 @@
 import * as Y from 'yjs'
 import { toBase64, fromBase64 } from './encoding'
 import { observeLocalUpdates, REMOTE_ORIGIN } from './observeLocal'
-import { websocketUrl } from './serverUrl'
+import { websocketUrl, roomParams } from './serverUrl'
 import type { SyncTransport, TransportDeps } from './types'
 
-export function createWebSocketTransport({ doc, setStatus }: TransportDeps): SyncTransport {
+export function createWebSocketTransport({
+  doc,
+  owner,
+  file,
+  setStatus,
+  onRejected,
+}: TransportDeps): SyncTransport {
   let socket: WebSocket | null = null
   let unobserve = () => {}
   let disposed = false
@@ -15,7 +21,7 @@ export function createWebSocketTransport({ doc, setStatus }: TransportDeps): Syn
       return
     }
     setStatus('connecting')
-    socket = new WebSocket(websocketUrl())
+    socket = new WebSocket(`${websocketUrl()}?${roomParams(owner, file)}`)
 
     socket.onopen = () => {
       setStatus('connected')
@@ -27,9 +33,11 @@ export function createWebSocketTransport({ doc, setStatus }: TransportDeps): Syn
     }
 
     socket.onmessage = (event) => {
-      const message = JSON.parse(event.data) as { t: string; u: string }
-      if (message.t === 'sync' || message.t === 'update') {
+      const message = JSON.parse(event.data) as { t: string; u?: string; reason?: string }
+      if ((message.t === 'sync' || message.t === 'update') && message.u) {
         Y.applyUpdate(doc, fromBase64(message.u), REMOTE_ORIGIN)
+      } else if (message.t === 'rejected') {
+        onRejected?.(message.reason)
       }
     }
 

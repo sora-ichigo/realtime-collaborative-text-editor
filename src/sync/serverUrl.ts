@@ -17,3 +17,8 @@ export function apiPath(path: string): string {
 export function websocketUrl(): string {
   return resolveWebsocketUrl(window.location.protocol, window.location.host)
 }
+
+/** Query string identifying a room (owner + file). */
+export function roomParams(owner: string, file: string): string {
+  return `owner=${encodeURIComponent(owner)}&file=${encodeURIComponent(file)}`
+}

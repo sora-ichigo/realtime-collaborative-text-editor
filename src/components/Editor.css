@@ -94,6 +94,134 @@
   color: #15803d;
 }
 
+.editor__fsbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid #e2e2e2;
+  background: #fbfbfb;
+  flex-wrap: wrap;
+}
+
+.editor__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: #555;
+}
+
+.editor__field input,
+.editor__field select {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.editor__name {
+  font-weight: 600;
+}
+
+.editor__fsbar button {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.82rem;
+  border: 1px solid #c0c0c0;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.editor__badge {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.editor__badge--mine {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.editor__quota {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.editor__quota-bar {
+  width: 120px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.editor__quota-fill {
+  display: block;
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.3s ease;
+}
+
+.editor__quota-fill.is-full {
+  background: #dc2626;
+}
+
+.editor__files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.editor__file {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.editor__file.is-open {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.editor__file-size {
+  color: #999;
+}
+
+.editor__quota-error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #fecaca;
+}
+
+.editor__quota-error button {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  color: #b91c1c;
+}
+
 .editor__textarea {
   flex: 1;
   width: 100%;

@@ -12,7 +12,10 @@ export interface SyncTransport {
 export interface TransportDeps {
   doc: Y.Doc
   clientId: string
+  owner: string
+  file: string
   setStatus: (status: ConnectionStatus) => void
+  onRejected?: (reason?: string) => void
 }
 
 export const SYNC_MODE_LABELS: Record<SyncMode, string> = {
